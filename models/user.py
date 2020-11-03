@@ -5,7 +5,7 @@ import re
 from flask_login import UserMixin
 
 
-class User(BaseModel):
+class User(BaseModel, UserMixin):
     username = pw.CharField(unique=True)
     email = pw.CharField(unique=True)
     password_hash = pw.CharField(unique=False)
