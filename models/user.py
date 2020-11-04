@@ -28,8 +28,8 @@ class User(BaseModel, UserMixin):
             if not re.search("[a-z]", self.password):
                 self.errors.append("Password must one include lowercase")
 
-            if not re.search("[A-Z]", self.password):
-                self.errors.append("Password must one include uppercase")
+            # if not re.search("[A-Z]", self.password):
+            #     self.errors.append("Password must one include uppercase")
 
             if not re.search("[0-9]", self.password):
                 self.errors.append("Password must one include number characters")
