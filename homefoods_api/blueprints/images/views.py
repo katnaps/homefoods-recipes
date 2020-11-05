@@ -77,3 +77,11 @@ def post():
             return jsonify({"Error": "Failed to save"})  
     else:
         return jsonify({"Error": "File doesnt exist"})
+
+# retrieve user images
+@images_api_blueprint.route("/userId=<id>", methods=["GET"])
+def retrieve(id):
+    from app import app
+    user = User.get_or_none(User.id==id)
+    images = Image.select().where(Image.user==user)
+    return jsonify([{"id": image.id, "url": app.config.get("AWS_S3_DOMAIN")+ image.image_url} for image in images])
