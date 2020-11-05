@@ -3,13 +3,22 @@ import peewee as pw
 from werkzeug.security import generate_password_hash
 import re
 from flask_login import UserMixin
+from playhouse.hybrid import hybrid_property
 
 
 class User(BaseModel, UserMixin):
     username = pw.CharField(unique=True)
     email = pw.CharField(unique=True)
     password_hash = pw.CharField(unique=False)
+    image_path = pw.CharField(null=True)
     password = None
+
+    @hybrid_property
+    def profile_image_path(self):
+        from app import app
+        if not self.image_path:
+            return app.config.get("AWS_S3_DOMAIN") + "profile_img.png"
+        return app.config.get("AWS_S3_DOMAIN") + self.image_path
 
     def validate(self):
         existing_email = User.get_or_none(User.email == self.email)
@@ -28,14 +37,8 @@ class User(BaseModel, UserMixin):
             if not re.search("[a-z]", self.password):
                 self.errors.append("Password must one include lowercase")
 
-            # if not re.search("[A-Z]", self.password):
-            #     self.errors.append("Password must one include uppercase")
-
             if not re.search("[0-9]", self.password):
                 self.errors.append("Password must one include number characters")
-
-            # if not re.search("[\[\]\*\^\%\!]", self.password):
-            #     self.errors.append("Password must include special characters")
 
             if len(self.errors) == 0:
                 print("No errors detected")

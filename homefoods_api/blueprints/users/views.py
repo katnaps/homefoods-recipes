@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from models.user import User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_jwt_extended import create_access_token
+from werkzeug.security import check_password_hash
 
 users_api_blueprint = Blueprint('users_api',
                              __name__,
@@ -30,6 +31,7 @@ def create():
         return jsonify({"Error": "Invalid credentials"})
 
 
+
 # get all users
 # maybe include "profileImage"
 @users_api_blueprint.route('/', methods=['GET'])
@@ -51,3 +53,41 @@ def me():
             "username": user.username,
             "email": user.email
         })
+
+@users_api_blueprint.route('/<id>', methods=['POST'])
+@jwt_required
+def update(id):
+    user_id = get_jwt_identity()
+    user = User.get_or_none(User.id == user_id)
+    if user:
+        data = request.json
+    
+        hash_password = user.password_hash
+        result = check_password_hash(hash_password, data.get('old_password'))
+        print(result)
+        # login user if password correct
+        if result:
+            user.username = data.get("username")
+            user.email = data.get("email")
+
+            if data.get("password") != "":
+                user.password = data.get("password")
+
+            if user.save():
+                token = create_access_token(identity=user.id)
+                return jsonify({
+                    "username": user.username,
+                    "email": user.email,
+                    "token": token
+                })
+        else:
+            return jsonify({
+                "Error": "Wrong password"
+            })    
+    return jsonify({
+        "Error": "Invalid credentials"
+    })
+
+
+
+
