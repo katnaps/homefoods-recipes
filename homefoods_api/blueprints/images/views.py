@@ -85,3 +85,15 @@ def retrieve(id):
     user = User.get_or_none(User.id==id)
     images = Image.select().where(Image.user==user)
     return jsonify([{"id": image.id, "url": app.config.get("AWS_S3_DOMAIN")+ image.image_url} for image in images])
+
+# same as above, but lists all the urls instead (different format)
+# requires token
+@images_api_blueprint.route("/me", methods=["GET"])
+@jwt_required
+def answer():
+    from app import app
+    user_id = get_jwt_identity()
+    user = User.get_or_none(User.id == user_id)
+    images = Image.select().where(Image.user==user)
+    return jsonify([ app.config.get("AWS_S3_DOMAIN")+ image.image_url for image in images])
+
