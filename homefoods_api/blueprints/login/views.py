@@ -7,6 +7,7 @@ login_api_blueprint = Blueprint('login_api',
                              __name__,
                              template_folder='templates')
 
+# do include profile_picture
 @login_api_blueprint.route('/', methods=['POST'])
 def login():
     data = request.json
@@ -20,5 +21,15 @@ def login():
         if result:
             # session["user_id"] = user.id
             token = create_access_token(identity=user.id)
-            return jsonify({"token": token})
-    return jsonify({"Error": "Invalid credentials"})
+            return jsonify({"token": token,
+            "message": "Successfully signed in.",
+            "status": "success",
+            "users": {
+                "id":user.id,
+                "username":user.username
+            }
+            })
+    return jsonify({
+    "message": "Some error occurred. Please try again.",
+    "status": "fail"
+    })

@@ -15,7 +15,10 @@ def create():
     user = User.get_or_none(User.id == user_id)
     if user:
         if 'image' not in request.files:
-            return jsonify({"Error": "No image part"})
+            return jsonify({
+            "message": "No image provided",
+            "status": "failed"
+            })
         file = request.files['image']
 
         if file.filename == '':

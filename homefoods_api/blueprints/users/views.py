@@ -8,7 +8,6 @@ users_api_blueprint = Blueprint('users_api',
                              __name__,
                              template_folder='templates')
 
-# we could expand on the errors later
 @users_api_blueprint.route('/', methods=['POST'])
 def create():
     data = request.json
@@ -28,19 +27,19 @@ def create():
             }
         })
     else:
-        return jsonify({"Error": "Invalid credentials"})
+        return jsonify({"status": "failed", "message": user.errors})
 
 
 
 # get all users
-# maybe include "profileImage"
+# include "profileImage"
 @users_api_blueprint.route('/', methods=['GET'])
 def index():
     users = User.select()
     return jsonify([{"id": user.id, "email": user.email, "username": user.username} for user in users])
 
 # retrieve information of currently LOGGED-IN user
-# please include profile_picture
+# include profile_picture
 @users_api_blueprint.route('/me', methods=['GET'])
 @jwt_required
 def me():
@@ -74,12 +73,17 @@ def update(id):
                 user.password = data.get("password")
 
             if user.save():
+                # weird i can use both token
                 token = create_access_token(identity=user.id)
                 return jsonify({
                     "username": user.username,
                     "email": user.email,
                     "token": token
                 })
+            else:
+                return jsonify({
+                "message": user.errors
+                })    
         else:
             return jsonify({
                 "Error": "Wrong password"
