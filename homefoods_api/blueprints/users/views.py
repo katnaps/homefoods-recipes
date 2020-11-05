@@ -56,7 +56,9 @@ def update(id):
             return jsonify({
                 "Error": "Wrong password"
             })    
-    return jsonify({"Error": "Invalid credentials"})
+    return jsonify({
+        "Error": "Invalid credentials"
+    })
 
 
 
