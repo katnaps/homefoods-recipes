@@ -57,7 +57,6 @@ def find(id):
 @jwt_required
 def me():
     user_id = get_jwt_identity()
-    # what the line below means
     user = User.get_or_none(User.id == user_id)
     if user:
         return jsonify({

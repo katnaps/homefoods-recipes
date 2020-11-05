@@ -10,6 +10,7 @@ images_api_blueprint = Blueprint('images_api',
 @images_api_blueprint.route("/", methods=["POST"])
 @jwt_required
 def create():
+    # why line below?
     from app import app
     user_id = get_jwt_identity()
     user = User.get_or_none(User.id == user_id)
