@@ -38,6 +38,19 @@ def index():
     users = User.select()
     return jsonify([{"id": user.id, "email": user.email, "username": user.username} for user in users])
 
+# get information from specific user id
+#  please include profileImage
+@users_api_blueprint.route('/<id>', methods=['GET'])
+def find(id):
+    user = User.get_or_none(User.id == id)
+    if user:
+        return jsonify({"id": user.id, "email": user.email, "username": user.username} )
+    else:
+        return jsonify({
+        "message": "User does not exist",
+        "status": "failed"
+        })
+
 # retrieve information of currently LOGGED-IN user
 # include profile_picture
 @users_api_blueprint.route('/me', methods=['GET'])
