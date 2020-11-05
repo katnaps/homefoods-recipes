@@ -94,6 +94,11 @@ def answer():
     from app import app
     user_id = get_jwt_identity()
     user = User.get_or_none(User.id == user_id)
-    images = Image.select().where(Image.user==user)
-    return jsonify([ app.config.get("AWS_S3_DOMAIN")+ image.image_url for image in images])
-
+    if user:
+        images = Image.select().where(Image.user==user)
+        return jsonify([ app.config.get("AWS_S3_DOMAIN")+ image.image_url for image in images])
+    else:
+        return jsonify({
+                "message": "Authentication failed",
+                "status": "failed"
+                })
