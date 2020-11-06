@@ -11,6 +11,8 @@ class Config(object):
     S3_KEY                    = os.environ.get("S3_ACCESS_KEY")
     S3_SECRET                 = os.environ.get("S3_SECRET_KEY")
     AWS_S3_DOMAIN             = 'http://{}.s3.amazonaws.com/'.format(S3_BUCKET)
+    YOUR_CLIENT_ID = os.environ.get("YOUR_CLIENT_ID")
+    YOUR_CLIENT_SECRET = os.environ.get("YOUR_CLIENT_SECRET")
 
 
 class ProductionConfig(Config):

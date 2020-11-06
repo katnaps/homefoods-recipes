@@ -1,7 +1,8 @@
 from models.user import User
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, url_for
 from werkzeug.security import check_password_hash
 from flask_jwt_extended import create_access_token
+from helpers import oauth
 
 login_api_blueprint = Blueprint('login_api',
                              __name__,
@@ -33,3 +34,31 @@ def login():
     "message": "Some error occurred. Please try again.",
     "status": "fail"
     })
+
+# google OAuth2
+# i think POST method
+@login_api_blueprint.route("/google_login")
+def google_login():
+    redirect_uri = url_for('login_api.authorize', _external = True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@login_api_blueprint.route("/authorize/google")
+def authorize():
+    oauth.google.authorize_access_token()
+    email = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()['email']
+    user = User.get_or_none(User.email == email)
+    if user:
+        token = create_access_token(identity=user.id)
+        return jsonify({"token": token,
+        "message": "Successfully signed in.",
+        "status": "success",
+        "users": {
+            "id":user.id,
+            "username":user.username
+        }
+        })
+    else:
+        return jsonify({
+        "message": "Some error occurred. Please try again.",
+        "status": "fail"
+        })
