@@ -30,8 +30,8 @@ def upload_to_s3(file, folder_name, acl="public-read"):
 oauth = OAuth()
 
 oauth.register('google',
-    client_id=app.config.get("YOUR_CLIENT_ID"),
-    client_secret=app.config.get("YOUR_CLIENT_SECRET"),
+    client_id=app.config.get("G_CLIENT_ID"),
+    client_secret=app.config.get("G_CLIENT_SECRET"),
     access_token_url='https://accounts.google.com/o/oauth2/token',
     access_token_params=None,
     refresh_token_url=None,

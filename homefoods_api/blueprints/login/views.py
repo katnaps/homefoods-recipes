@@ -36,13 +36,12 @@ def login():
     })
 
 # google OAuth2
-# i think POST method
-@login_api_blueprint.route("/google_login")
+@login_api_blueprint.route("/google_login", methods=['GET'])
 def google_login():
     redirect_uri = url_for('login_api.authorize', _external = True)
     return oauth.google.authorize_redirect(redirect_uri)
 
-@login_api_blueprint.route("/authorize/google")
+@login_api_blueprint.route("/authorize/google", methods=['GET'])
 def authorize():
     oauth.google.authorize_access_token()
     email = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()['email']
