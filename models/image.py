@@ -11,7 +11,4 @@ class Image(BaseModel):
     @hybrid_property
     def full_image_url(self):
         from app import app
-        if self.image_url:
-            return app.config.get("S3_LOCATION") + self.image_url
-        else:
-            pass
+        return app.config.get("AWS_S3_DOMAIN") + self.image_url
