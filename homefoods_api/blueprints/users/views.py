@@ -41,7 +41,7 @@ def index():
         "id": user.id,
         "email": user.email,
         "username": user.username,
-        "image_path": app.config.get("AWS_S3_DOMAIN") + file_path
+        "image_path": app.config.get("AWS_S3_DOMAIN") + user.image_path
         } for user in users])
 
 # get information from specific user id
@@ -54,7 +54,7 @@ def find(id):
             "id": user.id,
             "email": user.email,
             "username": user.username,
-            "image_path": app.config.get("AWS_S3_DOMAIN") + file_path
+            "image_path": app.config.get("AWS_S3_DOMAIN") + user.image_path
         })
     else:
         return jsonify({
@@ -74,7 +74,7 @@ def me():
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "image_path": app.config.get("AWS_S3_DOMAIN") + file_path
+            "image_path": app.config.get("AWS_S3_DOMAIN") + user.image_path
         })
 
 @users_api_blueprint.route('/<id>', methods=['POST'])
