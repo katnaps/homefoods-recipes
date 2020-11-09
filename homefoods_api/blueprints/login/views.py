@@ -7,8 +7,7 @@ from helpers import oauth
 login_api_blueprint = Blueprint('login_api',
                              __name__,
                              template_folder='templates')
-
-# do include profile_picture
+# login
 @login_api_blueprint.route('/', methods=['POST'])
 def login():
     from app import app

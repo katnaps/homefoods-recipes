@@ -15,6 +15,8 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
+# upload profile image
 @images_api_blueprint.route("/", methods=["POST"])
 @jwt_required
 def create():

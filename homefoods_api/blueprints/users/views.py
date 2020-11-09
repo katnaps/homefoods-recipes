@@ -48,7 +48,6 @@ def index():
         } for user in users])
 
 # get information from specific user id
-#  please include profileImage
 @users_api_blueprint.route('/<id>', methods=['GET'])
 def find(id):
     user = User.get_or_none(User.id == id)
@@ -66,7 +65,6 @@ def find(id):
         })
 
 # retrieve information of currently LOGGED-IN user
-# include profile_picture
 @users_api_blueprint.route('/me', methods=['GET'])
 @jwt_required
 def me():
@@ -80,6 +78,7 @@ def me():
             "image_path": app.config.get("AWS_S3_DOMAIN") + user.image_path
         })
 
+# edit profile
 @users_api_blueprint.route('/<id>', methods=['POST'])
 @jwt_required
 def update(id):
