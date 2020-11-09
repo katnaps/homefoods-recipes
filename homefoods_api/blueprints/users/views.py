@@ -17,6 +17,7 @@ def create():
     if create:
         # Successful save
         token = create_access_token(identity=user.id)
+        user.image_path = app.config.get("AWS_S3_DOMAIN") + "profile_img.png"
         return jsonify({
             "token": token,
             "message": "Successfully created a user and signed in.",
