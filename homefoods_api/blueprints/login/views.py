@@ -11,6 +11,7 @@ login_api_blueprint = Blueprint('login_api',
 # do include profile_picture
 @login_api_blueprint.route('/', methods=['POST'])
 def login():
+    from app import app
     data = request.json
     # retrieve the user that want to sign in from database
     user = User.get_or_none(username=data.get('username'))
@@ -26,13 +27,19 @@ def login():
             "message": "Successfully signed in.",
             "status": "success",
             "users": {
-                "id":user.id,
-                "username":user.username
+                "id": user.id,
+                "username": user.username,
+                "image_path": app.config.get("AWS_S3_DOMAIN") + user.image_path
             }
             })
+        else:
+            return jsonify({
+                "message": "Wrong Password"
+            })
+            
     return jsonify({
-    "message": "Some error occurred. Please try again.",
-    "status": "fail"
+        "message": "Some error occurred. Please try again.",
+        "status": "fail"
     })
 
 # google OAuth2
@@ -52,8 +59,8 @@ def authorize():
         "message": "Successfully signed in.",
         "status": "success",
         "users": {
-            "id":user.id,
-            "username":user.username
+            "id": user.id,
+            "username": user.username
         }
         })
     else:

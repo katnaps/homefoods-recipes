@@ -4,15 +4,20 @@ from models.image import Image
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from helpers import upload_to_s3
+from app import app
 
 images_api_blueprint = Blueprint('images_api',
                              __name__,
                              template_folder='templates')
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @images_api_blueprint.route("/", methods=["POST"])
 @jwt_required
 def create():
-    from app import app
     user_id = get_jwt_identity()
     user = User.get_or_none(User.id == user_id)
     if user:
@@ -28,7 +33,6 @@ def create():
 
         if file and allowed_file(file.filename):
             file_path = upload_to_s3(file, user_id)
-            # do you need the line below?
             user.image_path = file_path
             if user.save():
                 return jsonify({
@@ -38,19 +42,15 @@ def create():
             else:
                 print(user.errors)
                 return jsonify({"Error": "Failed to upload image"})
-
-    
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        else:
+            return jsonify({
+                "message": "Not supported file format or file doesn't exist"
+            })
 
 # post user images
 @images_api_blueprint.route("/new", methods=["POST"])
 @jwt_required
 def post():
-    from app import app
     user_id = get_jwt_identity()
     user = User.get_or_none(User.id == user_id)
     if "image" not in request.files:
@@ -63,7 +63,7 @@ def post():
     if file.filename == "":
         return jsonify({"message":"Please select a file"})
 
-    if file:
+    if file and allowed_file(file.filename):
         file_path = upload_to_s3(file, user_id)
 
         new_image = Image(image_url=file_path, user=user_id)
@@ -76,27 +76,30 @@ def post():
         else:
             return jsonify({"Error": "Failed to save"})  
     else:
-        return jsonify({"Error": "File doesnt exist"})
+        return jsonify({
+                "message": "Not supported file format or file doesn't exist"
+            })
 
 # retrieve user images
-@images_api_blueprint.route("/userId=<id>", methods=["GET"])
+@images_api_blueprint.route("/<id>", methods=["GET"])
 def retrieve(id):
-    from app import app
     user = User.get_or_none(User.id==id)
     images = Image.select().where(Image.user==user)
-    return jsonify([{"id": image.id, "url": app.config.get("AWS_S3_DOMAIN")+ image.image_url} for image in images])
+    return jsonify([{
+        "id": image.id,
+        "url": app.config.get("AWS_S3_DOMAIN") + image.image_url
+        } for image in images])
 
 # same as above, but lists all the urls instead (different format)
 # requires token
 @images_api_blueprint.route("/me", methods=["GET"])
 @jwt_required
 def answer():
-    from app import app
     user_id = get_jwt_identity()
     user = User.get_or_none(User.id == user_id)
     if user:
         images = Image.select().where(Image.user==user)
-        return jsonify([ app.config.get("AWS_S3_DOMAIN")+ image.image_url for image in images])
+        return jsonify([ app.config.get("AWS_S3_DOMAIN") + image.image_url for image in images])
     else:
         return jsonify({
                 "message": "Authentication failed",

@@ -3,6 +3,7 @@ from models.user import User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_jwt_extended import create_access_token
 from werkzeug.security import check_password_hash
+from app import app
 
 users_api_blueprint = Blueprint('users_api',
                              __name__,
@@ -36,7 +37,12 @@ def create():
 @users_api_blueprint.route('/', methods=['GET'])
 def index():
     users = User.select()
-    return jsonify([{"id": user.id, "email": user.email, "username": user.username} for user in users])
+    return jsonify([{
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "image_path": app.config.get("AWS_S3_DOMAIN") + file_path
+        } for user in users])
 
 # get information from specific user id
 #  please include profileImage
@@ -44,11 +50,16 @@ def index():
 def find(id):
     user = User.get_or_none(User.id == id)
     if user:
-        return jsonify({"id": user.id, "email": user.email, "username": user.username} )
+        return jsonify({
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "image_path": app.config.get("AWS_S3_DOMAIN") + file_path
+        })
     else:
         return jsonify({
-        "message": "User does not exist",
-        "status": "failed"
+            "message": "User does not exist",
+            "status": "failed"
         })
 
 # retrieve information of currently LOGGED-IN user
@@ -62,7 +73,8 @@ def me():
         return jsonify({
             "id": user.id,
             "username": user.username,
-            "email": user.email
+            "email": user.email,
+            "image_path": app.config.get("AWS_S3_DOMAIN") + file_path
         })
 
 @users_api_blueprint.route('/<id>', methods=['POST'])
