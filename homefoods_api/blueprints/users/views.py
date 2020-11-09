@@ -13,11 +13,12 @@ users_api_blueprint = Blueprint('users_api',
 def create():
     data = request.json
     user = User(username=data.get("username"), email=data.get("email"), password=data.get("password"))
+    # Set default user profile image
+    user.image_path = "profile_img.png"
     create = user.save()
     if create:
         # Successful save
         token = create_access_token(identity=user.id)
-        user.image_path = app.config.get("AWS_S3_DOMAIN") + "profile_img.png"
         return jsonify({
             "token": token,
             "message": "Successfully created a user and signed in.",
@@ -25,7 +26,8 @@ def create():
             "user": {
                 "id": user.id,
                 "username": user.username,
-                "email": user.email
+                "email": user.email,
+                "image_path": user.image_path
             }
         })
     else:
